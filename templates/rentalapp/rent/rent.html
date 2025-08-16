@@ -1,0 +1,59 @@
+{% extends 'rentalapp/base.html' %}
+
+{% block title %}Firmy wynajmujące{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fa fa-suitcase me-2"></i>Firmy wynajmujące przyczepki</h5>
+                <div>
+                    <a href="{% url 'rentalapp:add_rental' %}" class="btn btn-success btn-sm">
+                        <i class="fa fa-plus"></i> Nowy wynajem
+                    </a>
+                    <a href="{% url 'rentalapp:company_list' %}" class="btn btn-outline-light btn-sm ms-2">
+                        <i class="fa fa-building"></i> Wszystkie firmy
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body">
+                {% if companies %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Nazwa firmy</th>
+                                <th>Liczba wynajmów</th>
+                                <th>Całkowity dochód (zł)</th>
+                                <th>Akcje</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for company in companies %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ company.name }}</td>
+                                    <td>{{ company.rentals.count }}</td>
+                                    <td>{{ company.total_cost|default:"0.00" }} zł</td>
+                                    <td>
+                                        <a href="{% url 'rentalapp:company_rent_detail' company.id %}"
+                                           class="btn btn-sm btn-info">
+                                            <i class="fa fa-eye"></i> Szczegóły
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center mb-0">
+                        Brak firm, które wynajmowały przyczepki.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

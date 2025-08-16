@@ -1,0 +1,26 @@
+{% extends 'rentalapp/base.html' %}
+{% block title %}Zakończ serwis{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5>Zakończ serwis - {{ trailer.name }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Notatka serwisowa</label>
+                        <textarea name="comment" id="comment" rows="4" class="form-control"
+                                  placeholder="Opisz, co zostało zrobione..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa fa-check"></i> Zakończ serwis
+                    </button>
+                    <a href="{% url 'rentalapp:active_services_view' %}" class="btn btn-secondary">Anuluj</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

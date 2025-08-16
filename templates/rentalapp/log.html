@@ -1,0 +1,65 @@
+{% extends 'rentalapp/base.html' %}
+{% load static %}
+
+{% block title %}Logi przyczepek{% endblock title %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fa fa-file-text me-2"></i>Logi przyczepek</h5>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="logTable" class="table table-bordered table-hover align-middle mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Przyczepka</th>
+                            <th>Typ zdarzenia</th>
+                            <th>Treść</th>
+                            <th>Data</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for log in logs %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ log.trailer.name }}</td>
+                                <td>{{ log.get_event_type_display }}</td>
+                                <td>{{ log.message }}</td>
+                                <td>{{ log.timestamp|date:"Y-m-d H:i" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Brak logów.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extrajs %}
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#logTable').DataTable({
+                order: [[4, 'desc']],
+                pagingType: "simple_numbers",
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pl.json'
+                }
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'rentalapp/base.html' %}
+
+{% block title %}Edycja przyczepki{% endblock title %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5>Edycja przyczepki: {{ trailer.name }}</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="name" class="form-label">Nazwa</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ trailer.name }}">
+            </div>
+            <div class="mb-3">
+                <label for="ip_address" class="form-label">IP</label>
+                <input type="text" class="form-control" id="ip_address" name="ip_address" value="{{ trailer.ip_address }}">
+            </div>
+            <div class="mb-3">
+                <label for="serial_number" class="form-label">Numer seryjny</label>
+                <input type="text" class="form-control" id="serial_number" name="serial_number" value="{{ trailer.serial_number }}">
+            </div>
+            <div class="mb-3">
+                <label for="registration_number" class="form-label">Numer rejestracyjny</label>
+                <input type="text" class="form-control" id="registration_number" name="registration_number" value="{{ trailer.registration_number }}">
+            </div>
+            <div class="mb-3">
+                <label for="operator_phone" class="form-label">Telefon operatora</label>
+                <input type="text" class="form-control" id="operator_phone" name="operator_phone" value="{{ trailer.operator_phone }}">
+            </div>
+            <div class="mb-3">
+                <label for="location_link" class="form-label">Link do mapy</label>
+                <input type="text" class="form-control" id="location_link" name="location_link" value="{{ trailer.location_link }}">
+            </div>
+            <div class="mb-3">
+                <label for="notes" class="form-label">Notatki</label>
+                <textarea class="form-control" id="notes" name="notes">{{ trailer.notes }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="active" {% if trailer.status == 'active' %}selected{% endif %}>Aktywna</option>
+                    <option value="inactive" {% if trailer.status == 'inactive' %}selected{% endif %}>Nieaktywna</option>
+                    <option value="maintenance" {% if trailer.status == 'maintenance' %}selected{% endif %}>W serwisie</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fa fa-floppy-o"></i> Zapisz
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

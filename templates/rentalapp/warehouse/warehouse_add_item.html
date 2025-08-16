@@ -1,0 +1,31 @@
+{% extends 'rentalapp/base.html' %}
+{% load static %}
+
+{% block title %}Dodaj przedmiot do magazynu{% endblock title %}
+
+{% block content %}
+    <div class="container mt-3">
+        <h3>Dodaj przedmiot do magazynu</h3>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="name" class="form-label">Nazwa</label>
+                <input type="text" class="form-control" name="name" id="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Ilość sztuk</label>
+                <input type="number" class="form-control" name="quantity" id="quantity" required>
+            </div>
+            <div class="mb-3">
+                <label for="date_state" class="form-label">Stan z dnia</label>
+                <input type="date" class="form-control" name="date_state" id="date_state" required>
+            </div>
+            <div class="mb-3">
+                <label for="comment" class="form-label">Komentarz</label>
+                <textarea class="form-control" name="comment" id="comment" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Zapisz</button>
+            <a href="{% url 'rentalapp:warehouse_manager' %}" class="btn btn-secondary">Anuluj</a>
+        </form>
+    </div>
+{% endblock content %}

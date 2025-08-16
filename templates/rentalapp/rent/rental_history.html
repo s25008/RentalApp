@@ -1,0 +1,62 @@
+{% extends 'rentalapp/base.html' %}
+{% load static %}
+{% block title %}Historia wynajmów{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white d-flex align-items-center">
+                <h5 class="mb-0"><i class="fa fa-history me-2"></i>Historia wynajmów</h5>
+            </div>
+
+            <div class="card-body">
+                {% if rentals %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Nazwa wynajmu</th>
+                                <th>Firma</th>
+                                <th>Data rozpoczęcia</th>
+                                <th>Data zakończenia</th>
+                                <th>Przyczepki</th>
+                                <th>Koszt (zł)</th>
+                                <th>Utworzono</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for rental in rentals %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ rental.name }}</td>
+                                    <td>{{ rental.company.name }}</td>
+                                    <td>{{ rental.start_date|date:"Y-m-d" }}</td>
+                                    <td>{{ rental.end_date|date:"Y-m-d" }}</td>
+                                    <td>
+                                        {% if rental.rental_trailers.all %}
+                                            <ul class="mb-0 ps-3">
+                                                {% for rt in rental.rental_trailers.all %}
+                                                    <li>{{ rt.trailer.name }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <span class="text-muted">Brak przyczepek</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ rental.cost }} zł</td>
+                                    <td>{{ rental.created_at|date:"Y-m-d H:i" }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center mb-0">
+                        Brak historii wynajmów do wyświetlenia.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

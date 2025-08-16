@@ -1,0 +1,38 @@
+{% extends 'rentalapp/base.html' %}
+
+
+{% block title %}Dodaj przyczepkę{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fa fa-plus me-2"></i>Dodaj nową przyczepkę</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        {% for field in form.visible_fields %}
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small">{{ field.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'rentalapp:trailer_list' %}" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Anuluj
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-save"></i> Zapisz przyczepkę
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

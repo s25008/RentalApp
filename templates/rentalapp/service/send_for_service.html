@@ -1,0 +1,40 @@
+{% extends 'rentalapp/base.html' %}
+{% block title %}Wysyłanie na serwis - {{ trailer.name }}{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h3>Wysyłanie na serwis - {{ trailer.name }}</h3>
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">Typ serwisu</label>
+                <select name="service_type" class="form-select">
+                    <option value="Naprawa">Naprawa</option>
+                    <option value="Przegląd">Przegląd</option>
+                    <option value="Transport">Transport</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status po wysłaniu</label>
+                <select name="status" class="form-select">
+                    <option value="maintenance">W serwisie</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Lokalizacja serwisu</label>
+                <input type="text" name="location" class="form-control" placeholder="Miasto, adres">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Notatka</label>
+                <textarea name="note" class="form-control" placeholder="Opisz, co trzeba zrobić..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success">Zatwierdź i wyślij</button>
+            <a href="{% url 'rentalapp:trailer_detail' trailer.id %}" class="btn btn-secondary">Anuluj</a>
+        </form>
+    </div>
+{% endblock %}

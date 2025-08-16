@@ -1,0 +1,71 @@
+{% extends 'rentalapp/base.html' %}
+{% block title %}{{ company.name }} – Wynajmy{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2>{{ company.name }}</h2>
+        <h4 class="mt-4">Wynajęte przyczepki:</h4>
+
+        {% if rentals %}
+            {% for rental in rentals %}
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <strong>{{ rental.name|default:"Bez nazwy" }}</strong>
+                        <form method="post" class="mb-0">
+                            {% csrf_token %}
+                            <input type="hidden" name="rental_id" value="{{ rental.id }}">
+                            <button type="submit" name="delete_rental" class="btn btn-danger btn-sm">Usuń wynajem
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Wynajem:</strong> od {{ rental.start_date }} do {{ rental.end_date }} |
+                            koszt za miesiąc: {{ rental.monthly_price }} zł |
+                            koszt za cały wynajem: {{ rental.cost }} zł
+                        </p>
+
+                        <p><strong>Przyczepki:</strong></p>
+                        <ul>
+                            {% for rt in rental.rental_trailers.all %}
+                                <li>
+                                    <a href="{% url 'rentalapp:trailer_detail' rt.trailer.id %}">
+                                        {{ rt.trailer.name }}
+                                    </a>
+                                    <form method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="rental_id" value="{{ rental.id }}">
+                                        <input type="hidden" name="rental_trailer_id" value="{{ rt.id }}">
+                                        <button type="submit" name="remove_trailer"
+                                                class="btn btn-sm btn-outline-danger ms-2">Usuń
+                                        </button>
+                                    </form>
+                                </li>
+                            {% empty %}
+                                <li>Brak przyczepek.</li>
+                            {% endfor %}
+                        </ul>
+
+                        <form method="post" class="mt-3 d-flex align-items-center">
+                            {% csrf_token %}
+                            <input type="hidden" name="rental_id" value="{{ rental.id }}">
+                            <select name="trailer_id" class="form-select me-2" style="max-width: 300px;">
+                                {% for trailer in rental.available_trailers %}
+                                    <option value="{{ trailer.id }}">{{ trailer.name }}</option>
+                                {% empty %}
+                                    <option disabled>Brak dostępnych przyczepek</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" name="add_trailer" class="btn btn-primary">Dodaj</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Brak wynajmów dla tej firmy.</p>
+        {% endif %}
+
+        <a href="{% url 'rentalapp:rent' %}" class="btn btn-secondary mt-3">
+            <i class="fa fa-arrow-left"></i> Powrót do listy firm
+        </a>
+    </div>
+{% endblock %}

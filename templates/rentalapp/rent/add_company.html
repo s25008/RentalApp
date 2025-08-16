@@ -1,0 +1,14 @@
+{% extends 'rentalapp/base.html' %}
+{% block title %}Dodaj firmę{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h3>Dodaj nową firmę</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Zapisz firmę</button>
+            <a href="{% url 'rentalapp:add_rental' %}" class="btn btn-secondary">Anuluj</a>
+        </form>
+    </div>
+{% endblock %}

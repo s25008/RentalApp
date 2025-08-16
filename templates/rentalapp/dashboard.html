@@ -1,0 +1,114 @@
+{% extends 'rentalapp/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1 class="mb-4">Dashboard</h1>
+        <div class="row">
+
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-header" style="color: black;">Wszystkie przyczepki</div>
+                    <div class="card-body">
+                        <h2 class="text-center">{{ total_trailers }}</h2>
+                        <p class="text-center">Liczba wszystkich przyczepek</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-danger">
+                    <div class="card-header" style="color: black;">Nieaktywne przyczepki</div>
+                    <div class="card-body">
+                        <h2 class="text-center">{{ inactive_trailers }}</h2>
+                        <p class="text-center">Status "inactive"</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-header" style="color: black;">Przedmioty &lt; 5 szt.</div>
+                    <div class="card-body">
+                        <h2 class="text-center">{{ items_below_5 }}</h2>
+                        <p class="text-center">Mało na stanie</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-success">
+                    <div class="card-header" style="color: black;">Użytkownicy</div>
+                    <div class="card-body">
+                        <h2 class="text-center">{{ total_users }}</h2>
+                        <p class="text-center">Łącznie użytkowników</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-light"><strong>Liczba wynajmów na miesiąc</strong></div>
+                    <div class="card-body">
+                        <canvas id="rentalsBarChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-light"><strong>Przyczepki wynajęte vs wolne</strong></div>
+                    <div class="card-body">
+                        <canvas id="trailerPieChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <a href="{% url 'rentalapp:generate_report_pdf' %}" class="btn btn-outline-primary mt-3">
+            <i class="fa fa-file-pdf-o"></i> Pobierz raport PDF
+        </a>
+    </div>
+{% endblock %}
+
+{% block extrajs %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const rentalsBar = document.getElementById('rentalsBarChart').getContext('2d');
+        new Chart(rentalsBar, {
+            type: 'bar',
+            data: {
+                labels: {{ months|safe }},
+                datasets: [{
+                    label: 'Liczba wynajmów',
+                    data: {{ rental_counts|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {beginAtZero: true}
+                }
+            }
+        });
+
+        const trailerPie = document.getElementById('trailerPieChart').getContext('2d');
+        new Chart(trailerPie, {
+            type: 'doughnut',
+            data: {
+                labels: ['Wynajęte', 'Wolne'],
+                datasets: [{
+                    label: 'Status przyczepek',
+                    data: {{ trailer_status_counts|safe }},
+                    backgroundColor: ['#007bff', '#6c757d'],
+                }]
+            }
+        });
+    </script>
+{% endblock %}

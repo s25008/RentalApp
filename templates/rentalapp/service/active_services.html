@@ -1,0 +1,78 @@
+{% extends 'rentalapp/base.html' %}
+{% load static %}
+
+{% block title %}Aktywne serwisy{% endblock %}
+
+{% block content %}
+    <div class="container-fluid mt-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fa fa-cogs me-2"></i>Aktywne serwisy</h5>
+                <a href="{% url 'rentalapp:service_history_view' %}" class="btn btn-light btn-sm">
+                    <i class="fa fa-history"></i> Historia serwisowa
+                </a>
+            </div>
+
+            <div class="card-body">
+                {% if trailers %}
+                    <div class="table-responsive">
+                        <table id="activeServicesTable" class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nazwa</th>
+                                <th>Numer seryjny</th>
+                                <th>Nr rejestracyjny</th>
+                                <th>Status</th>
+                                <th>Notatka</th>
+                                <th>Akcje</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for trailer in trailers %}
+                                <tr>
+                                    <td>{{ trailer.id }}</td>
+                                    <td>{{ trailer.name }}</td>
+                                    <td>{{ trailer.serial_number }}</td>
+                                    <td>{{ trailer.registration_number }}</td>
+                                    <td>{{ trailer.get_status_display }}</td>
+                                    <td>{{ trailer.notes|default:"—" }}</td>
+                                    <td class="d-flex gap-2">
+                                        <a href="{% url 'rentalapp:mark_service_done' trailer.id %}"
+                                           class="btn btn-success btn-sm">
+                                            <i class="fa fa-check"></i> Gotowe
+                                        </a>
+                                        <a href="{% url 'rentalapp:trailer_detail' trailer.id %}"
+                                           class="btn btn-info btn-sm">
+                                            <i class="fa fa-info-circle"></i> Szczegóły
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center mt-3">
+                        Brak aktywnych serwisów.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extrajs %}
+    <script>
+        $(document).ready(function () {
+            $('#activeServicesTable').DataTable({
+                order: [[0, 'desc']],
+                paging: true,
+                searching: false,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pl.json'
+                }
+            });
+        });
+    </script>
+{% endblock %}

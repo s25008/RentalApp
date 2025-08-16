@@ -1,0 +1,94 @@
+{% extends 'rentalapp/base.html' %}
+{% load static %}
+
+{% block title %}Magazyn{% endblock title %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fa fa-archive me-2"></i>Magazyn</h5>
+            </div>
+
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="filterInput" class="form-label">Filtruj:</label>
+                    <input type="text" id="filterInput" class="form-control" placeholder="Wpisz frazę..."
+                           onkeyup="filterTable()">
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle" id="warehouseTable">
+                        <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Nazwa</th>
+                            <th>Ilość sztuk</th>
+                            <th>Stan z dnia</th>
+                            <th>Komentarz</th>
+                            <th>Akcje</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in items %}
+                            <tr {% if item.quantity < 5 %}class="table-danger"{% endif %}>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ item.name }}</td>
+                                <td>
+                                    {{ item.quantity }}
+                                    {% if item.quantity < 5 %}
+                                        <br><strong class="text-danger small">UWAGA! Mało!</strong>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.date_state|date:"d-m-Y" }}</td>
+                                <td>{{ item.comment }}</td>
+                                <td class="d-flex gap-1">
+                                    <a href="{% url 'rentalapp:warehouse_edit_item' item.pk %}"
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'rentalapp:warehouse_delete_item' item.pk %}"
+                                       class="btn btn-sm btn-danger">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 d-flex flex-wrap gap-2">
+                    <a href="{% url 'rentalapp:warehouse_add_item' %}" class="btn btn-success">
+                        <i class="fa fa-plus"></i> Dodaj rzecz
+                    </a>
+
+                    <a href="{% url 'rentalapp:warehouse_logs' %}" class="btn btn-secondary">
+                        <i class="fa fa-list"></i> Logi magazynu
+                    </a>
+
+                    <button class="btn btn-dark ms-auto" id="doneBtn">
+                        <i class="fa fa-check"></i> Gotowe
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterTable() {
+            const filter = document.getElementById('filterInput').value.toUpperCase();
+            const rows = document.querySelectorAll("#warehouseTable tbody tr");
+            rows.forEach(row => {
+                const match = [...row.cells].some(td =>
+                    td.textContent.toUpperCase().includes(filter)
+                );
+                row.style.display = match ? '' : 'none';
+            });
+        }
+
+        document.getElementById('doneBtn').addEventListener('click', function () {
+            window.location = "{% url 'rentalapp:dashboard' %}";
+        });
+    </script>
+{% endblock %}

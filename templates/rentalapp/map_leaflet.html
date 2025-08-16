@@ -1,0 +1,55 @@
+{% extends 'rentalapp/base.html' %}
+{% load static %}
+
+{% block title %}Mapa przyczepek{% endblock title %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <style>
+        #map {
+            height: 500px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+    </style>
+{% endblock extrahead %}
+
+{% block content %}
+    <div class="container-fluid mt-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fa fa-map me-2"></i>Mapa przyczepek</h5>
+            </div>
+            <div class="card-body">
+                <div id="map"></div>
+                <div class="text-end mt-3">
+                    <span class="text-muted">Łączna liczba przyczepek: <strong>{{ total_trailers }}</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extrajs %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var map = L.map('map').setView([52.2297, 21.0122], 6);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            var trailers = {{ trailers_json|safe }};
+            trailers.forEach(function (trailer) {
+                if (trailer.latitude && trailer.longitude) {
+                    L.marker([trailer.latitude, trailer.longitude])
+                        .addTo(map)
+                        .bindPopup("<b>" + trailer.name + "</b><br>Lat: " + trailer.latitude + "<br>Lng: " + trailer.longitude);
+                }
+            });
+        });
+    </script>
+{% endblock extrajs %}

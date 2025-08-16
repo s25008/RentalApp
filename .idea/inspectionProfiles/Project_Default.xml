@@ -1,0 +1,21 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="dt" />
+          <option value="main.a_kuli_list" />
+          <option value="main.Ek_kuli_list" />
+          <option value="main.Ep_kuli_list" />
+          <option value="main.E_kuli_list" />
+          <option value="main.a_sfera_list" />
+          <option value="main.Ek_sfera_list" />
+          <option value="main.Ep_sfera_list" />
+          <option value="main.E_sfera_list" />
+          <option value="main.s25008" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

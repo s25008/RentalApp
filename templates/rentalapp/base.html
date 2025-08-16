@@ -1,0 +1,84 @@
+{% load static %}
+{% load tz %}
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}System przyczepek{% endblock title %}</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="{% static 'rentalapp/css/style.css' %}">
+  {% block extrahead %}{% endblock extrahead %}
+</head>
+<body>
+<div class="d-flex">
+    <div class="bg-info text-white p-3 d-flex flex-column" style="width: 220px; min-height: 100vh;">
+        <h5 class="mb-4">Menu</h5>
+        <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white" href="{% url 'rentalapp:dashboard' %}"><i class="fa fa-tachometer fa-lg"></i> Dashboard</a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white" href="{% url 'rentalapp:trailer_list' %}"><i class="fa fa-truck fa-lg"></i> Przyczepka</a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white" href="{% url 'rentalapp:map_view' %}"><i class="fa fa-map fa-lg"></i> Mapa</a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white" href="{% url 'rentalapp:log' %}"><i class="fa fa-file-text fa-lg"></i> Log</a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white" href="{% url 'rentalapp:active_services' %}">
+                    <i class="fa fa-cogs fa-lg"></i> Serwis aktywny
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white" href="{% url 'rentalapp:warehouse_manager' %}"><i class="fa fa-archive fa-lg"></i> Magazyn</a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white" href="{% url 'rentalapp:rental_history' %}">
+    <i class="fa fa-history fa-lg"></i> Historia
+</a>
+
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white" href="{% url 'rentalapp:rent' %}"><i class="fa fa-suitcase fa-lg"></i> Wynajmy</a>
+            </li>
+        </ul>
+
+        {% if user.is_authenticated %}
+        <div class="mt-auto">
+            <a class="btn btn-danger w-100" href="{% url 'rentalapp:logout' %}">
+                <i class="fa fa-sign-out"></i> Wyloguj
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="p-4 flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">System przyczepek</h2>
+            {% if user.is_authenticated %}
+            <div class="text-end">
+                <div class="text-info fw-bold">
+                    {% if user.groups.exists %}{{ user.groups.first.name }} {{ user.username }}
+                    {% else %}{{ user.username }}{% endif %}
+                </div>
+                <div class="text-muted">{% now "Y-m-d H:i" %}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% block content %}{% endblock content %}
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="{% static 'rentalapp/js/script.js' %}"></script>
+
+{% block extrajs %}{% endblock extrajs %}
+</body>
+</html>

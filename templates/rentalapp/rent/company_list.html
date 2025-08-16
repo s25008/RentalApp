@@ -1,0 +1,58 @@
+{% extends 'rentalapp/base.html' %}
+
+{% block title %}Wszystkie firmy{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fa fa-building me-2"></i>Lista firm</h5>
+            </div>
+
+            <div class="card-body">
+                {% if companies %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Nazwa firmy</th>
+                                <th>Liczba wynajmów</th>
+                                <th>Całkowity dochód (zł)</th>
+                                <th>Akcje</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for company in companies %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ company.name }}</td>
+                                    <td>{{ company.total_rentals }}</td>
+                                    <td>{{ company.total_income|default:"0.00" }}</td>
+                                    <td class="d-flex gap-2">
+                                        <a href="{% url 'rentalapp:company_rent_detail' company.id %}"
+                                           class="btn btn-sm btn-info">
+                                            <i class="fa fa-eye"></i> Szczegóły
+                                        </a>
+                                        <form method="post" action="{% url 'rentalapp:delete_company' company.id %}"
+                                              onsubmit="return confirm('Czy na pewno chcesz usunąć tę firmę?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fa fa-trash"></i> Usuń firmę
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center mb-0">
+                        Brak zarejestrowanych firm.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

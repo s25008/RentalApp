@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+
+        h2 {
+            background: #eee;
+            padding: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<h1>Zestawienie systemowe</h1>
+<p>Data wygenerowania: {{ generated_on|date:"Y-m-d H:i" }}</p>
+
+<h2>Przyczepki</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Nazwa</th>
+        <th>Status</th>
+        <th>IP</th>
+    </tr>
+    {% for t in trailers %}
+        <tr>
+            <td>{{ t.id }}</td>
+            <td>{{ t.name }}</td>
+            <td>{{ t.get_status_display }}</td>
+            <td>{{ t.ip_address }}</td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="4">Brak danych</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<h2>Wynajmy</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Firma</th>
+        <th>Okres</th>
+        <th>Cena miesięczna</th>
+    </tr>
+    {% for r in rentals %}
+        <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.company.name }}</td>
+            <td>{{ r.start_date }} - {{ r.end_date }}</td>
+            <td>{{ r.monthly_price }} zł</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<h2>Magazyn</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Nazwa</th>
+        <th>Ilość</th>
+        <th>Data</th>
+    </tr>
+    {% for item in warehouse_items %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.date_state }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<h2>Serwisy</h2>
+<table>
+    <tr>
+        <th>Data</th>
+        <th>Przyczepka</th>
+        <th>Opis</th>
+        <th>Koszt</th>
+    </tr>
+    {% for s in services %}
+        <tr>
+            <td>{{ s.service_date }}</td>
+            <td>{{ s.trailer.name }}</td>
+            <td>{{ s.description }}</td>
+            <td>{{ s.cost }} zł</td>
+        </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

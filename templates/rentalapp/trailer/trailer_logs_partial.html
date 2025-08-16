@@ -1,0 +1,12 @@
+{% if trailer_logs %}
+    <ul>
+        {% for log in trailer_logs %}
+            <li>
+                <strong>{{ log.timestamp|date:"d-m-Y H:i" }}</strong> –
+                {{ log.get_event_type_display }}: {{ log.message }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Brak logów dla tej przyczepki.</p>
+{% endif %}
