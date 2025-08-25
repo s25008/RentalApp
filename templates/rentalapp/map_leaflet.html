@@ -4,52 +4,59 @@
 {% block title %}Mapa przyczepek{% endblock title %}
 
 {% block extrahead %}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <style>
-        #map {
-            height: 500px;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-    </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  #map{height:500px;border:2px solid #ccc;border-radius:8px;margin-bottom:1rem}
+  .leaflet-popup-content a.btn { color: #fff !important; }
+</style>
 {% endblock extrahead %}
 
 {% block content %}
-    <div class="container-fluid mt-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fa fa-map me-2"></i>Mapa przyczepek</h5>
-            </div>
-            <div class="card-body">
-                <div id="map"></div>
-                <div class="text-end mt-3">
-                    <span class="text-muted">Łączna liczba przyczepek: <strong>{{ total_trailers }}</strong></span>
-                </div>
-            </div>
-        </div>
+<div class="container-fluid mt-4">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0"><i class="fa fa-map me-2"></i>Mapa przyczepek</h5>
     </div>
+    <div class="card-body">
+      <div id="map"></div>
+      <div class="text-end mt-3">
+        <span class="text-muted">Łączna liczba przyczep: <strong>{{ total_trailers }}</strong></span>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}
 
 {% block extrajs %}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var map = L.map('map').setView([52.2297, 21.0122], 6);
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var map = L.map('map').setView([52.2297, 21.0122], 6);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-            var trailers = {{ trailers_json|safe }};
-            trailers.forEach(function (trailer) {
-                if (trailer.latitude && trailer.longitude) {
-                    L.marker([trailer.latitude, trailer.longitude])
-                        .addTo(map)
-                        .bindPopup("<b>" + trailer.name + "</b><br>Lat: " + trailer.latitude + "<br>Lng: " + trailer.longitude);
-                }
-            });
-        });
-    </script>
+    var trailers = {{ trailers_json|safe }};
+
+    var detailUrlTemplate = "{% url 'rentalapp:trailer_detail' pk=0 %}";
+    function detailUrl(pk){ return detailUrlTemplate.replace('/0/', '/' + pk + '/'); }
+
+    trailers.forEach(function (tr) {
+      if (tr.latitude && tr.longitude) {
+        var popupHtml = `
+          <div style="min-width:180px">
+            <div class="fw-semibold mb-1">${tr.name}</div>
+            <div class="text-muted small">Lat: ${tr.latitude}<br>Lng: ${tr.longitude}</div>
+            <a href="${detailUrl(tr.id)}" class="btn btn-sm btn-primary mt-2" data-loader="true">
+              Szczegóły
+            </a>
+          </div>
+        `;
+        L.marker([tr.latitude, tr.longitude]).addTo(map).bindPopup(popupHtml);
+      }
+    });
+  });
+</script>
 {% endblock extrajs %}

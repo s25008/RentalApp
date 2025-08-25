@@ -5,7 +5,7 @@ from rentalapp.models import Trailer
 class MapViews:
     @staticmethod
     def map_view(request):
-        trailers = Trailer.objects.exclude(latitude=None).exclude(longitude=None).values('name', 'latitude', 'longitude')
+        trailers = Trailer.objects.exclude(latitude=None).exclude(longitude=None).values('id','name', 'latitude', 'longitude')
         total_trailers = Trailer.objects.count()
 
         context = {
