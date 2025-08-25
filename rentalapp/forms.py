@@ -1,7 +1,4 @@
 from django import forms
-from .models import Trailer
-
-from django import forms
 from .models import Trailer, Company, Rental, WarehouseItem
 from django.contrib.auth.models import User, Group
 

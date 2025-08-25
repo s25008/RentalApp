@@ -11,7 +11,8 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <strong>{{ rental.name|default:"Bez nazwy" }}</strong>
-                        <form method="post" class="mb-0">
+                        <form method="post" class="mb-0"
+                              onsubmit="return confirm('Czy na pewno chcesz usunąć ten wynajem?');">
                             {% csrf_token %}
                             <input type="hidden" name="rental_id" value="{{ rental.id }}">
                             <button type="submit" name="delete_rental" class="btn btn-danger btn-sm">Usuń wynajem
@@ -31,7 +32,8 @@
                                     <a href="{% url 'rentalapp:trailer_detail' rt.trailer.id %}">
                                         {{ rt.trailer.name }}
                                     </a>
-                                    <form method="post" style="display:inline;">
+                                    <form method="post" style="display:inline;"
+                                          onsubmit="return confirm('Usunąć przyczepkę z tego wynajmu?');">
                                         {% csrf_token %}
                                         <input type="hidden" name="rental_id" value="{{ rental.id }}">
                                         <input type="hidden" name="rental_trailer_id" value="{{ rt.id }}">
@@ -41,7 +43,7 @@
                                     </form>
                                 </li>
                             {% empty %}
-                                <li>Brak przyczepek.</li>
+                                <li>Brak przyczep.</li>
                             {% endfor %}
                         </ul>
 
@@ -52,7 +54,7 @@
                                 {% for trailer in rental.available_trailers %}
                                     <option value="{{ trailer.id }}">{{ trailer.name }}</option>
                                 {% empty %}
-                                    <option disabled>Brak dostępnych przyczepek</option>
+                                    <option disabled>Brak dostępnych przyczep</option>
                                 {% endfor %}
                             </select>
                             <button type="submit" name="add_trailer" class="btn btn-primary">Dodaj</button>

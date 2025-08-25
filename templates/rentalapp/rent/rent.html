@@ -27,7 +27,7 @@
                                 <th>Nazwa firmy</th>
                                 <th>Liczba wynajmów</th>
                                 <th>Całkowity dochód (zł)</th>
-                                <th>Akcje</th>
+                                <th style="width: 230px;">Akcje</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -38,10 +38,22 @@
                                     <td>{{ company.rentals.count }}</td>
                                     <td>{{ company.total_cost|default:"0.00" }} zł</td>
                                     <td>
-                                        <a href="{% url 'rentalapp:company_rent_detail' company.id %}"
-                                           class="btn btn-sm btn-info">
-                                            <i class="fa fa-eye"></i> Szczegóły
-                                        </a>
+                                        <div class="d-flex gap-2">
+                                            <a href="{% url 'rentalapp:company_rent_detail' company.id %}"
+                                               class="btn btn-sm btn-info">
+                                                <i class="fa fa-eye"></i> Szczegóły
+                                            </a>
+
+                                            <form method="post"
+                                                  action="{% url 'rentalapp:delete_company' pk=company.id %}"
+                                                  class="mb-0"
+                                                  onsubmit="return confirm('Usunąć firmę {{ company.name }}? Tej operacji nie można cofnąć.');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fa fa-trash"></i> Usuń firmę
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             {% endfor %}

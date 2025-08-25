@@ -11,6 +11,12 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="{% static 'rentalapp/css/style.css' %}">
   {% block extrahead %}{% endblock extrahead %}
+
+  <style>
+    .app-loader{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(255,255,255,.7);z-index:2000}
+    .app-loader.show{display:flex}
+    .app-loader-box{background:rgba(255,255,255,.95);padding:1.25rem 1.5rem;border-radius:.75rem;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+  </style>
 </head>
 <body>
 <div class="d-flex">
@@ -30,7 +36,7 @@
                 <a class="nav-link text-white" href="{% url 'rentalapp:log' %}"><i class="fa fa-file-text fa-lg"></i> Log</a>
             </li>
             <li class="nav-item mb-2">
-                <a class="nav-link text-white" href="{% url 'rentalapp:active_services' %}">
+                <a class="nav-link text-white" href="{% url 'rentalapp:active_services_view' %}">
                     <i class="fa fa-cogs fa-lg"></i> Serwis aktywny
                 </a>
             </li>
@@ -39,9 +45,8 @@
             </li>
             <li class="nav-item mb-2">
                 <a class="nav-link text-white" href="{% url 'rentalapp:rental_history' %}">
-    <i class="fa fa-history fa-lg"></i> Historia
-</a>
-
+                    <i class="fa fa-history fa-lg"></i> Historia
+                </a>
             </li>
             <li class="nav-item mb-2">
                 <a class="nav-link text-white" href="{% url 'rentalapp:rent' %}"><i class="fa fa-suitcase fa-lg"></i> Wynajmy</a>
@@ -72,6 +77,13 @@
         </div>
         {% block content %}{% endblock content %}
     </div>
+</div>
+
+<div id="app-loader" class="app-loader" aria-hidden="true">
+  <div class="app-loader-box text-center">
+    <div class="spinner-border" role="status" aria-label="Ładowanie"></div>
+    <div class="mt-3 fw-semibold">Przetwarzanie…</div>
+  </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
