@@ -8,52 +8,66 @@
     document.addEventListener('submit', function (e) {
         const form = e.target;
         if (!form || form.tagName !== 'FORM') return;
+
+        if (form.dataset.noLoader === 'true') return;
+
         const method = (form.getAttribute('method') || 'get').toLowerCase();
-        if (method !== 'post') return;
+
+        const shouldShow =
+            method === 'post' || (method === 'get' && form.dataset.loader === 'true');
+
+        if (!shouldShow) return;
+
         if (typeof form.checkValidity === 'function' && !form.checkValidity()) return;
-        if (form.closest('[data-no-loader="true"]')) return;
 
         const btn = form.querySelector('button[type="submit"], input[type="submit"]');
-        if (btn && !btn.dataset.loadingAttached) {
-            btn.dataset.loadingAttached = '1';
+        if (btn && !btn.disabled) {
+            btn.disabled = true;
             if (btn.tagName === 'BUTTON') {
                 btn.dataset.originalHtml = btn.innerHTML;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Przetwarzanie…';
+                btn.innerHTML =
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Przetwarzanie…';
             }
-            btn.disabled = true;
         }
         show();
     }, true);
 
-    let autoHideTimer = null;
-
     document.addEventListener('click', function (e) {
         if (e.defaultPrevented) return;
-        if (e.button !== 0) return;
-        const el = e.target.closest('*');
-        if (!el) return;
-        if (el.closest('[data-no-loader="true"]')) return;
 
+        if (e.button !== 0) return;
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
         const a = e.target.closest('a[href]');
-        if (a) {
-            const href = a.getAttribute('href') || '';
-            const target = a.getAttribute('target') || '';
-            const isHash = href.startsWith('#');
-            const isJs = href.toLowerCase().startsWith('javascript:');
-            const isBootstrapToggle = a.getAttribute('data-bs-toggle');
+        if (!a) return;
 
-            if (target === '_blank' || isHash || isJs || isBootstrapToggle) return;
-            show();
-        } else {
-            show();
+        if (a.dataset.noLoader === 'true') return;
+
+        if (a.dataset.loader === 'true') {
+            if ((a.getAttribute('target') || '') !== '_blank') show();
+            return;
         }
 
+        const href = a.getAttribute('href') || '';
+        const target = a.getAttribute('target') || '';
+        const isHash = href.startsWith('#');
+        const isJs = href.toLowerCase().startsWith('javascript:');
+        const isBootstrapToggle = a.getAttribute('data-bs-toggle');
+        const isDownload = a.hasAttribute('download');
 
-        clearTimeout(autoHideTimer);
-        autoHideTimer = setTimeout(() => hide(), 1200);
+        if (target === '_blank' || isHash || isJs || isBootstrapToggle || isDownload) return;
+
+        show();
     }, true);
+
+    if (window.jQuery) {
+        try {
+            jQuery(document).ajaxStart(show);
+            jQuery(document).ajaxStop(hide);
+            jQuery(document).ajaxError(hide);
+        } catch (_) {
+        }
+    }
 
     window.addEventListener('beforeunload', function () {
         show();

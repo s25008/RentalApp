@@ -24,6 +24,14 @@
             padding: 5px;
             text-align: left;
         }
+
+        /* tylko tabela Serwisy */
+        table.services-table { table-layout: fixed; }
+        table.services-table th, table.services-table td { vertical-align: top; }
+        table.services-table td.desc {
+            white-space: pre-wrap;     /* zachowaj nowe linie */
+            word-break: break-all;     /* łam też długie ciągi bez spacji */
+        }
     </style>
 </head>
 <body>
@@ -89,21 +97,27 @@
 </table>
 
 <h2>Serwisy</h2>
-<table>
+<table class="services-table">
+    <thead>
     <tr>
-        <th>Data</th>
-        <th>Przyczepka</th>
-        <th>Opis</th>
-        <th>Koszt</th>
+        <th width="20%">Data</th>
+        <th width="25%">Przyczepka</th>
+        <th width="55%">Opis</th>
     </tr>
+    </thead>
+    <tbody>
     {% for s in services %}
         <tr>
-            <td>{{ s.service_date }}</td>
-            <td>{{ s.trailer.name }}</td>
-            <td>{{ s.description }}</td>
-            <td>{{ s.cost }} zł</td>
+            <td width="20%">{{ s.service_date }}</td>
+            <td width="25%">{{ s.trailer.name }}</td>
+            <td class="desc" width="55%">{{ s.description|linebreaksbr }}</td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="3">Brak serwisów</td>
         </tr>
     {% endfor %}
+    </tbody>
 </table>
 </body>
 </html>

@@ -11,75 +11,110 @@ class RentViews:
     @staticmethod
     def company_rent_detail(request, pk):
         company = get_object_or_404(Company, pk=pk)
-        rentals = Rental.objects.filter(company=company).prefetch_related('rental_trailers__trailer')
+        rentals = (
+            Rental.objects
+            .filter(company=company)
+            .prefetch_related('rental_trailers__trailer')
+        )
 
         if request.method == 'POST':
-            rental_id = request.POST.get('rental_id')
-            rental = get_object_or_404(Rental, id=rental_id)
+            rental_id = (request.POST.get('rental_id') or '').strip()
+            if not rental_id:
+                messages.error(request, "Brak identyfikatora wynajmu (rental_id).")
+                return redirect('rentalapp:company_rent_detail', pk=company.pk)
 
-            if 'remove_trailer' in request.POST:
-                rt_id = request.POST.get('rental_trailer_id')
-                rt = get_object_or_404(RentalTrailer, id=rt_id)
+            rental = get_object_or_404(Rental, id=rental_id, company=company)
+
+            if 'rental_trailer_id' in request.POST:
+                rt_id = (request.POST.get('rental_trailer_id') or '').strip()
+                if not rt_id:
+                    messages.error(request, "Brak identyfikatora pozycji wynajmu (rental_trailer_id).")
+                    return redirect('rentalapp:company_rent_detail', pk=company.pk)
+
+                rt = get_object_or_404(RentalTrailer, id=rt_id, rental=rental)
                 RentalHistory.objects.create(
                     rental=rental,
                     description=f"Przyczepka {rt.trailer.name} została usunięta z wynajmu.",
-                    user=request.user
+                    user=request.user,
                 )
                 rt.delete()
                 messages.success(request, "Przyczepka została usunięta z wynajmu.")
-                return redirect('rentalapp:company_rent_detail', pk=company.id)
+                return redirect('rentalapp:company_rent_detail', pk=company.pk)
 
-            elif 'add_trailer' in request.POST:
-                trailer_id = request.POST.get('trailer_id')
+            elif 'trailer_id' in request.POST:
+                trailer_id = (request.POST.get('trailer_id') or '').strip()
+                if not trailer_id:
+                    messages.error(request, "Nie wybrano przyczepki.")
+                    return redirect('rentalapp:company_rent_detail', pk=company.pk)
+
                 collision_exists = RentalTrailer.objects.filter(
                     trailer_id=trailer_id,
                     rental__start_date__lte=rental.end_date,
-                    rental__end_date__gte=rental.start_date
+                    rental__end_date__gte=rental.start_date,
                 ).exists()
 
                 if collision_exists:
-                    messages.error(request, "Ta przyczepka jest już przypisana do innego wynajmu w tym terminie.")
+                    messages.error(
+                        request,
+                        "Ta przyczepka jest już przypisana do innego wynajmu w tym terminie."
+                    )
                 else:
-                    RentalTrailer.objects.create(rental=rental, trailer_id=trailer_id)
-                    trailer = get_object_or_404(Trailer, id=trailer_id)
+                    already_in_this = RentalTrailer.objects.filter(
+                        rental=rental, trailer_id=trailer_id
+                    ).exists()
+                    if already_in_this:
+                        messages.info(request, "Ta przyczepka jest już w tym wynajmie.")
+                    else:
+                        RentalTrailer.objects.create(rental=rental, trailer_id=trailer_id)
+                        trailer = get_object_or_404(Trailer, id=trailer_id)
+                        RentalHistory.objects.create(
+                            rental=rental,
+                            description=f"Przyczepka {trailer.name} została dodana do wynajmu.",
+                            user=request.user,
+                        )
+                        messages.success(request, "Przyczepka została dodana do wynajmu.")
+
+                return redirect('rentalapp:company_rent_detail', pk=company.pk)
+
+            else:
+                action = (request.POST.get('action') or request.POST.get('delete_rental') or '').strip()
+                if action == 'delete_rental' or 'delete_rental' in request.POST:
                     RentalHistory.objects.create(
                         rental=rental,
-                        description=f"Przyczepka {trailer.name} została dodana do wynajmu.",
-                        user=request.user
+                        description="Wynajem został usunięty.",
+                        user=request.user,
                     )
-                    messages.success(request, "Przyczepka została dodana do wynajmu.")
+                    rental.delete()
+                    messages.success(request, "Wynajem został usunięty.")
+                    return redirect('rentalapp:company_rent_detail', pk=company.pk)
 
-                return redirect('rentalapp:company_rent_detail', pk=company.id)
-
-            elif 'delete_rental' in request.POST:
-                RentalHistory.objects.create(
-                    rental=rental,
-                    description=f"Wynajem został usunięty.",
-                    user=request.user
-                )
-                rental.delete()
-                messages.success(request, "Wynajem został usunięty.")
-                return redirect('rentalapp:company_rent_detail', pk=company.id)
+                messages.error(request, "Nie rozpoznano akcji formularza.")
+                return redirect('rentalapp:company_rent_detail', pk=company.pk)
 
         for rental in rentals:
             overlapping = Rental.objects.filter(
                 Q(start_date__lte=rental.end_date) & Q(end_date__gte=rental.start_date)
             ).exclude(id=rental.id)
 
-            rented_ids = RentalTrailer.objects.filter(
+            rented_elsewhere_ids = RentalTrailer.objects.filter(
                 rental__in=overlapping
             ).values_list('trailer_id', flat=True)
-            rental.available_trailers = Trailer.objects.exclude(id__in=rented_ids)
 
-        return render(request, 'rentalapp/rent/company_rent_detail.html', {
-            'company': company,
-            'rentals': rentals
-        })
+            current_rental_ids = rental.rental_trailers.values_list('trailer_id', flat=True)
+
+            blocked_ids = list(set(rented_elsewhere_ids) | set(current_rental_ids))
+
+            rental.available_trailers = Trailer.objects.exclude(id__in=blocked_ids).order_by('name')
+
+        return render(
+            request,
+            'rentalapp/rent/company_rent_detail.html',
+            {'company': company, 'rentals': rentals},
+        )
 
     @staticmethod
     def add_rental(request):
         company_id = request.GET.get('company_id')
-
         if request.method == 'POST':
             form = RentalForm(request.POST)
             if form.is_valid():
@@ -95,7 +130,6 @@ class RentViews:
                     form = RentalForm()
             else:
                 form = RentalForm()
-
         return render(request, 'rentalapp/rent/add_rental.html', {'form': form})
 
     @staticmethod
@@ -120,37 +154,42 @@ class RentViews:
     @staticmethod
     def delete_rental(request, pk):
         rental = get_object_or_404(Rental, pk=pk)
+        company_pk = rental.company_id
+        RentalHistory.objects.create(
+            rental=rental,
+            description="Wynajem został usunięty.",
+            user=request.user,
+        )
         rental.delete()
         messages.success(request, "Wynajem został usunięty.")
-        return redirect('rentalapp:rent')
+        return redirect('rentalapp:company_rent_detail', pk=company_pk)
 
     @staticmethod
     def company_list_view(request):
         companies = Company.objects.all()
-
         for company in companies:
             rentals = Rental.objects.filter(company=company)
             company.total_rentals = rentals.count()
             company.total_income = sum(r.cost for r in rentals)
-
-        return render(request, 'rentalapp/rent/company_list.html', {
-            'companies': companies
-        })
+        return render(request, 'rentalapp/rent/company_list.html', {'companies': companies})
 
     @staticmethod
     def rent_view(request):
-        companies = Company.objects.filter(rentals__isnull=False).distinct().prefetch_related('rentals')
-
+        companies = (
+            Company.objects
+            .filter(rentals__isnull=False)
+            .distinct()
+            .prefetch_related('rentals')
+        )
         for company in companies:
             company.total_cost = company.rentals.aggregate(total=Sum('cost'))['total'] or 0
-
-        return render(request, 'rentalapp/rent/rent.html', {
-            'companies': companies
-        })
+        return render(request, 'rentalapp/rent/rent.html', {'companies': companies})
 
     @staticmethod
     def rental_history_view(request):
-        rentals = Rental.objects.select_related('company').prefetch_related('rental_trailers__trailer')
-        return render(request, 'rentalapp/rent/rental_history.html', {
-            'rentals': rentals
-        })
+        rentals = (
+            Rental.objects
+            .select_related('company')
+            .prefetch_related('rental_trailers__trailer')
+        )
+        return render(request, 'rentalapp/rent/rental_history.html', {'rentals': rentals})

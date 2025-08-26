@@ -8,44 +8,91 @@
         <h5>Edycja przyczepki: {{ trailer.name }}</h5>
     </div>
     <div class="card-body">
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger mb-3">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
         <form method="POST">
             {% csrf_token %}
+
             <div class="mb-3">
                 <label for="name" class="form-label">Nazwa</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ trailer.name }}">
+                <input type="text" class="form-control" id="name" name="name"
+                       value="{{ form.name.value|default_if_none:'' }}">
+                {% if form.name.errors %}
+                    <div class="text-danger small">{{ form.name.errors|striptags }}</div>
+                {% endif %}
             </div>
+
             <div class="mb-3">
                 <label for="ip_address" class="form-label">IP</label>
-                <input type="text" class="form-control" id="ip_address" name="ip_address" value="{{ trailer.ip_address }}">
+                <input type="text" class="form-control" id="ip_address" name="ip_address"
+                       value="{{ form.ip_address.value|default_if_none:'' }}">
+                {% if form.ip_address.errors %}
+                    <div class="text-danger small">{{ form.ip_address.errors|striptags }}</div>
+                {% endif %}
             </div>
+
             <div class="mb-3">
                 <label for="serial_number" class="form-label">Numer seryjny</label>
-                <input type="text" class="form-control" id="serial_number" name="serial_number" value="{{ trailer.serial_number }}">
+                <input type="text" class="form-control" id="serial_number" name="serial_number"
+                       value="{{ form.serial_number.value|default_if_none:'' }}">
+                {% if form.serial_number.errors %}
+                    <div class="text-danger small">{{ form.serial_number.errors|striptags }}</div>
+                {% endif %}
             </div>
+
             <div class="mb-3">
                 <label for="registration_number" class="form-label">Numer rejestracyjny</label>
-                <input type="text" class="form-control" id="registration_number" name="registration_number" value="{{ trailer.registration_number }}">
+                <input type="text" class="form-control" id="registration_number" name="registration_number"
+                       value="{{ form.registration_number.value|default_if_none:'' }}">
+                {% if form.registration_number.errors %}
+                    <div class="text-danger small">{{ form.registration_number.errors|striptags }}</div>
+                {% endif %}
             </div>
+
             <div class="mb-3">
                 <label for="operator_phone" class="form-label">Telefon operatora</label>
-                <input type="text" class="form-control" id="operator_phone" name="operator_phone" value="{{ trailer.operator_phone }}">
+                <input type="text" class="form-control" id="operator_phone" name="operator_phone"
+                       value="{{ form.operator_phone.value|default_if_none:'' }}">
+                {% if form.operator_phone.errors %}
+                    <div class="text-danger small">{{ form.operator_phone.errors|striptags }}</div>
+                {% endif %}
             </div>
+
             <div class="mb-3">
                 <label for="location_link" class="form-label">Link do mapy</label>
-                <input type="text" class="form-control" id="location_link" name="location_link" value="{{ trailer.location_link }}">
+                <input type="text" class="form-control" id="location_link" name="location_link"
+                       value="{{ form.location_link.value|default_if_none:'' }}">
+                {% if form.location_link.errors %}
+                    <div class="text-danger small">{{ form.location_link.errors|striptags }}</div>
+                {% endif %}
             </div>
+
             <div class="mb-3">
                 <label for="notes" class="form-label">Notatki</label>
-                <textarea class="form-control" id="notes" name="notes">{{ trailer.notes }}</textarea>
+                <textarea class="form-control" id="notes" name="notes">{{ form.notes.value|default_if_none:'' }}</textarea>
+                {% if form.notes.errors %}
+                    <div class="text-danger small">{{ form.notes.errors|striptags }}</div>
+                {% endif %}
             </div>
+
             <div class="mb-3">
                 <label for="status" class="form-label">Status</label>
+                {% with current=form.status.value %}
                 <select class="form-select" id="status" name="status">
-                    <option value="active" {% if trailer.status == 'active' %}selected{% endif %}>Aktywna</option>
-                    <option value="inactive" {% if trailer.status == 'inactive' %}selected{% endif %}>Nieaktywna</option>
-                    <option value="maintenance" {% if trailer.status == 'maintenance' %}selected{% endif %}>W serwisie</option>
+                    <option value="active" {% if current == 'active' %}selected{% endif %}>Aktywna</option>
+                    <option value="inactive" {% if current == 'inactive' %}selected{% endif %}>Nieaktywna</option>
+                    <option value="maintenance" {% if current == 'maintenance' %}selected{% endif %}>W serwisie</option>
                 </select>
+                {% endwith %}
+                {% if form.status.errors %}
+                    <div class="text-danger small">{{ form.status.errors|striptags }}</div>
+                {% endif %}
             </div>
+
             <button type="submit" class="btn btn-primary">
                 <i class="fa fa-floppy-o"></i> Zapisz
             </button>

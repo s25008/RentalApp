@@ -72,6 +72,9 @@ class TrailerViews:
         if request.method == "POST":
             form = TrailerForm(request.POST, instance=trailer)
             if form.is_valid():
+                if not form.has_changed():
+                    messages.info(request, "Brak zmian do zapisania.")
+                    return redirect("rentalapp:trailer_detail", pk=trailer.pk)
                 trailer = form.save()
                 TrailerLog.objects.create(
                     trailer=trailer,
@@ -82,21 +85,31 @@ class TrailerViews:
                 if old_status != new_status:
                     current_time = timezone.now().strftime("%H:%M")
                     if new_status == "maintenance":
-                        message_text = f"Status zmieniony na 'W serwisie' przez {request.user.username} o {current_time}"
+                        message_text = (
+                            f"Status zmieniony na 'W serwisie' przez "
+                            f"{request.user.username} o {current_time}"
+                        )
                     else:
-                        message_text = f"Status zmieniony na '{trailer.get_status_display()}' o {current_time}"
+                        message_text = (
+                            f"Status zmieniony na '{trailer.get_status_display()}' "
+                            f"o {current_time}"
+                        )
                     TrailerLog.objects.create(
                         trailer=trailer,
                         event_type="status_change",
                         message=message_text,
                     )
+
                 messages.info(request, f"Przyczepka '{trailer.name}' została zaktualizowana.")
                 return redirect("rentalapp:trailer_detail", pk=trailer.pk)
-            else:
-                print(form.errors)
-        else:
-            form = TrailerForm(instance=trailer)
 
+            messages.error(request, "Popraw błędy w formularzu.")
+            return render(
+                request,
+                "rentalapp/trailer/trailer_edit.html",
+                {"form": form, "trailer": trailer},
+            )
+        form = TrailerForm(instance=trailer)
         return render(request, "rentalapp/trailer/trailer_edit.html", {"form": form, "trailer": trailer})
 
     @staticmethod
